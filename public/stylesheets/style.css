@@ -1,0 +1,23 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+nav{
+  border: solid 1px seagreen;
+   height:400px;
+  overflow:auto ;
+}
+#holdMsg{
+  width:40%;
+
+}
+#container{
+  display: none;
+}
+li{
+  list-style: none;
+}

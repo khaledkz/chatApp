@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Today Practice</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+
+</head>
+<body>
+
+<form id="userNameForm">
+    <h3 class="text-danger"> Please Add Your Nick Name </h3>
+
+    <input clas="col col-lg-12" id="usernameHolder" autocomplete="off" type="text" placeholder='add user name'>
+    <button class="btn btn-success">Add</button>
+</form>
+<div id="container">
+    <h1>App Practise HF</h1> <br>
+    <div class=" row">
+        <nav class="col-lg-8 col-md-10 col-sm-9">
+            <ul>
+
+            </ul>
+        </nav>
+        <div class="col-lg-4 col-md-2 col-sm-3" id="usersplace">
+
+        </div>
+
+    </div>
+    <form id="chatForm">
+        <div id="typingMsgHolder">    </div>
+        <input  id="holduserName" autocomplete="off" type="text" readonly><br><br>
+
+        <input clas="col col-lg-12" id="holdMsg" autocomplete="off" type="text" placeholder='SMS'>  <button class="btn btn-info">send</button>
+    </form>
+</div>
+</body>
+</html>
+
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.4.5/socket.io.js"></script>
+<script>
+    var socket = io();
+//         $('#userNameForm').hide();
+//           $('#container').show();
+
+    $('#userNameForm').submit(function () {
+        socket.emit('add User name to server',$('#usernameHolder').val());
+        return false;
+    });
+    socket.on('serverSendUser2page',function (data) {
+
+        $('#userNameForm').hide();
+        $('#container').show();
+
+         $('#holduserName').val(data);
+
+
+    });
+    socket.on('update user ser2page',function (data) {
+
+        var html = '';
+        for(i=0; i<data.length;i++){
+            html+='<li>'+data[i]+'</li>';
+        }
+        $('#usersplace').html(html);
+
+//       $('#usersplace').append($('<li>').text('hi'));
+
+    })
+    $('#chatForm').submit(function () {
+        socket.emit('userSendMsg2Server',{username:$('#holduserName').val(),
+            msgContent:$('#holdMsg').val()})
+
+        $('#holdMsg').val('')
+        return false;
+    });
+
+    socket.on('SerRecThenSend2User',function (msg) {
+
+        $('ul').append($('<li>').text(msg.username+': '+msg.msgContent));
+        document.querySelector('#typingMsgHolder').innerHTML= '';
+
+    });
+
+    document.getElementById('holdMsg').addEventListener('keyup',function () {
+        socket.emit('user typing msg',{username:$('#holduserName').val(),
+            msgContent:$('#holdMsg').val()});
+    })
+
+    socket.on('serSendTypingmsg2user',function (msg) {
+        if(msg.msgContent.length==0){
+            document.querySelector('#typingMsgHolder').innerHTML= ''
+        }else{
+            document.querySelector('#typingMsgHolder').innerHTML= '<p><em>' + msg.username+' is typing' + '</em></p>';
+        }
+    });
+
+</script>
